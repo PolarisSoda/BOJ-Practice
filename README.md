@@ -1,5 +1,6 @@
 # BOJ-Practice
-
+## Status
+[![Solved.ac Profile](http://mazassumnida.wtf/api/v2/generate_badge?boj=urin6695)](https://solved.ac/urin6695/)
 ## Dust-Like C++ Code Storage While PS
 
 앞으로도 업데이트를 하겠지만 앞으로 푼것을 계속 올릴 예정
