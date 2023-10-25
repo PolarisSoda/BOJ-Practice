@@ -13,12 +13,10 @@ int main() {
     cin >> N >> K;
 
     for(int i=1; i<=N; i++) cin >> arr[i];
-    for(int i=1; i<=N; i++) diff.push_back(arr[i]-arr[i-1]);
-
-    int ans = arr[N];
-    ans -= (diff[0]-1);
-    diff.erase(diff.begin());
+    for(int i=1; i<=N; i++) if(i != 1) diff.push_back(arr[i]-arr[i-1]);
     sort(diff.begin(),diff.end(),greater<int>());
+    
+    int ans = arr[N] - arr[1] + arr[0] + 1;
     for(int i=0; i<K-1; i++) ans -= (diff[i]-1);
     cout << ans;
     return 0;
