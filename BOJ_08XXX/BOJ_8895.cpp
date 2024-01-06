@@ -4,7 +4,7 @@ using namespace std;
 
 typedef long long ll;
 
-ll DP[21][21][21]; //왼쪽 L, 총 개수, 오른쪽 R
+ll DP[21][21][21]; //왼쪽 L,총 개수, 오른쪽 R
 
 int main() {
     cin.tie(NULL);
