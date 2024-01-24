@@ -5,57 +5,52 @@ using namespace std;
 typedef long long ll;
 typedef pair<ll,ll> pll;
 struct info {
-    int w,now;
-    ll wt;
-    ll total;
+    int now;
+    ll wt,total;
 };
-
 struct compare {
     bool operator()(info a,info b) {
+        if(a.total == b.total) return a.wt > b.wt;
         return a.total > b.total;
     }
 };
 
 constexpr int LEN = 200001;
 constexpr ll INF = 0x7FFFFFFFF;
-ll dist[LEN];
 vector<pll> edge[LEN];
-set<pll> check;
 
 ll solve() {
     int N,M;
-    cin >> N >> M;
-    for(int i=1; i<=N; i++) {
-        edge[i] = vector<pll>();
-        dist[i] = INF;
-    }
+    scanf("%d %d",&N,&M);
+
+    for(int i=0; i<LEN; i++) edge[i].clear();
     for(int i=0; i<M; i++) {
-        int a,b,c;
-        cin >> a >> b >> c;
-        edge[a].push_back({b,c});
-        edge[b].push_back({a,c});
+        int S,E,X;
+        scanf("%d %d %d",&S,&E,&X);
+        edge[S].push_back({E,X});
+        edge[E].push_back({S,X});
     }
 
+    vector<ll> dist(LEN,INF);
     priority_queue<info,vector<info>,compare> pq;
-    pq.push({1,1,0,0});
-    ll sum = 0;
+    pq.push({1,0,0});
 
+    ll sum = 0;
     while(!pq.empty()) {
-        int where = pq.top().w;
         int now = pq.top().now;
         ll wt = pq.top().wt;
         ll total = pq.top().total;
         pq.pop();
-
+        
         if(dist[now] <= total) continue;
-        cout << wt << " ";
         dist[now] = total;
+        sum += wt;
         int sz = edge[now].size();
         for(int i=0; i<sz; i++) {
             int next = edge[now][i].first;
             ll w = edge[now][i].second;
-            if(dist[next] > total+w) {
-                pq.push({now,next,w,total+w});
+            if(dist[next] >= total+w) {
+                pq.push({next,w,total+w});
             }
         }
     }
@@ -63,11 +58,7 @@ ll solve() {
 }
 
 int main() {
-    //cin.tie(NULL);
-    //ios_base::sync_with_stdio(false);
-
     int T;
-    cin >> T;
-    for(int i=1; i<=T; i++) cout << "#" << i << " " << solve() << "\n";
-    return 0;
+    scanf("%d",&T);
+    for(int i=1; i<=T; i++) printf("#%d %lld\n",i,solve());
 }
