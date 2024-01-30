@@ -26,7 +26,7 @@ void Update(int left,int right,ll val) {
     }
 }
 
-ll Get(ll x,ll sz) {
+ll Get(int x,int sz) {
 	ll ret = ST[x];
     for(x; x; x>>=1) ret += A[x]*sz;
 	return ret;
