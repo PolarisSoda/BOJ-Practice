@@ -75,29 +75,24 @@ int main() {
         edge[idx].push_back(idx+1);
         edge[idx+1].push_back(idx);
         C[{idx,idx+1}] = 1;
-        C[{idx+1,idx}] = 0;
 
         if(Approx(j-1,i) && label[j-1][i] != '#') {
             edge[idx+1].push_back(idx-2);
             edge[idx-2].push_back(idx+1);
             C[{idx+1,idx-2}] = INF;
-            C[{idx-2,idx+1}] = 0;
 
             edge[idx-1].push_back(idx);
             edge[idx].push_back(idx-1);
             C[{idx-1,idx}] = INF;
-            C[{idx,idx-1}] = 0;
         }
         if(Approx(j,i-1) && label[j][i-1] != '#') {
             edge[idx+1].push_back(idx-2*M);
             edge[idx-2*M].push_back(idx+1);
             C[{idx+1,idx-2*M}] = INF;
-            C[{idx-2*M,idx+1}] = 0;
 
             edge[idx-2*M+1].push_back(idx);
             edge[idx].push_back(idx-2*M+1);
             C[{idx-2*M+1,idx}] = INF;
-            C[{idx,idx-2*M+1}] = 0;
         }
     }
     if(abs(sx-tx)+abs(sy-ty) == 1) cout << -1, exit(0);
