@@ -7,10 +7,6 @@ typedef long long ll;
 int len;
 vector<ll> ST;
 
-void R_Init() {
-    for(int i=len-1; i>0; i--)
-        ST[i] = ST[i<<1] + ST[i<<1|1];
-}
 void R_Update(int left,int right,ll value) {
     int ans = 0;
     for(left+=len,right+=len; left<right; left>>=1,right>>=1) {
@@ -23,6 +19,8 @@ ll R_Query(int lo) {
     for(lo+=len; lo>0; lo>>=1) ans += ST[lo];
     return ans;
 }
+
+//Init이 필요없다.왜째서
 int main() {
     cin.tie(NULL);
     ios::sync_with_stdio(false);
