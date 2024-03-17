@@ -24,7 +24,7 @@ ll DFS(int now) {
 
         if(ret == 0) ans = (ans + temp)%DIV;
         else ans = (ans + (ret*temp)%DIV + temp)%DIV;
-        
+
         ret = (ret + temp)%DIV;
     }
     return DP[now] = ret;
