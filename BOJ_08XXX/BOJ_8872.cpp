@@ -42,7 +42,7 @@ int make_diameter(int num) {
             task.push(next);
         }
     }
-    int cur = pre[E],maxdiff = 0x7FFFFFF,maxd = 0;
+    int cur = E,maxdiff = 0x7FFFFFF,maxd = 0;
     while(pre[cur] != cur) {
         int fi = weight[cur], se = V - weight[cur];
         if(abs(fi-se) < maxdiff) maxdiff = abs(fi-se),maxd = max(fi,se);
