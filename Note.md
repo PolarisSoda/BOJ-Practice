@@ -27,9 +27,106 @@ void Update(int lo,int value) {
 ```
 
 ## Lazy Segment
-ll Init(int node)
-## Kitamasa
+- `L`과 `R`이 원하는 구간
+- `S`랑 `E`가 총 구간
+- `sum(1,1,N,B,C)`
+```cpp
+vector<ll> ST,lazy;
 
+ll Init(int node,int S,int E) {
+    if(S == E) return ST[node] = A[S];
+    ll M = (S+E)>>1;
+	return ST[node] = Init(node<<1,S,M) + Init(node<<1|1,M+1,E);
+}
+void Update_lazy(int node,int S,int E) {
+    if(lazy[node] != 0) {
+        ST[node] += (E-S+1)*lazy[node];
+        if(S != E) {
+            lazy[node<<1] += lazy[node];
+            lazy[node<<1|1] += lazy[node];
+        }
+        lazy[node] = 0;
+    }
+}
+void Update_range(int node, int S,int E,int L,int R,ll val) {
+    Update_lazy(node,S,E);
+	if(L>E || R<S) return;
+	if(L<=S && E<=R){
+        ST[node] += (E-S+1)*val;
+		if(S != E){
+			lazy[node<<1] += val;
+            lazy[node<<1|1] += val;
+		}
+		return;
+	}
+	int M = (S+E)>>1;
+    Update_range(node<<1,S,M,L,R,val);
+    Update_range(node<<1|1,M+1,E,L,R,val);
+    ST[node] = ST[node<<1] + ST[node<<1|1];
+}
+
+ll Sum(int node,int S,int E,int L,int R) {
+	Update_lazy(node,S,E);
+	if(L>E || R<S) return 0;
+	if(L<=S && E<=R) return ST[node];
+    ll M = (S+E)>>1;
+	return Sum(node<<1,S,M,L,R) + Sum(node<<1|1,M+1,E,L,R);
+}
+
+int main() {
+    cin.tie(NULL);
+    ios_base::sync_with_stdio(false);
+
+    int N,M;
+    cin >> N >> M;
+
+    ST = vector<ll>(N<<2,0);
+    lazy = vector<ll>(N<<2,0);
+}
+```
+## Kitamasa
+ - `A[N]`을 구함.
+ - `M`은 점화식 차수
+ - `A`는 수열, `C`는 곱해질 수열.
+ - `D`는 초기 수열들을 이용해서 구할 때의 수열.
+```cpp
+typedef long long ll;
+ll A[LEN],C[LEN],D[LEN],T[LEN<<1];
+
+void Kitamasa(int N,ll M) {
+    if(N == 1) {
+        D[1] = 1;
+        for(int i=2; i<=M; i++) D[i] = 0;
+        return;
+    }
+    if(N&1) {
+        //N이 홀수라면.
+        Kitamasa(N^1,M);
+        int j = D[M];
+        for(int i=M; i>=1; i--) D[i] = (D[i-1] + C[M-i+1]*j)%DIV;
+    } else {
+        //N이 짝수라면.
+        Kitamasa(N>>1,M);
+        for(int i=1; i<=M+M; i++) T[i] = 0;
+        for(int i=1; i<=M; i++) for(int j=1; j<=M; j++) T[i+j] = (T[i+j] + D[i]*D[j])%DIV;
+        for(int i=M+M; i>M; i--) for(int j=1; j<=M; j++) T[i-j] = (T[i-j] + C[j]*T[i])%DIV;
+        for(int i=1; i<=M; i++) D[i] = T[i];
+    }
+}
+
+int main() {
+    cin.tie(NULL);
+    ios_base::sync_with_stdio(false);
+
+    Kitamasa(N,2);
+    ll ans = 0;
+    for(int i=1; i<=2; i++) {
+        ans = (ans + A[i]*D[i])%DIV;
+    }
+    cout << ans;
+}
+
+```
 ## Union Find & MST Kruskal
 - Index는 1부터 시작
 ```cpp
@@ -88,11 +185,12 @@ for(int i=1; i<=N; i++) {
 
 ## EGCD
 ```cpp
-int Euclidean(int a,int b) {
-    int r = a % b;
-    while(r == 0)
-        r = a % b, a = b, b = r;
-    return a;
+int EGCD(int A,int B,int &X,int &Y) {
+    //ax + by = gcd(a, b)
+    int R = A; 
+    X = 1, Y = 0;
+    if(B != 0) R = EGCD(B,A%B,Y,X), Y -= A/B*X;
+    return R;
 }
 ```
 
@@ -182,8 +280,6 @@ while(!pq.empty()) {
     }
 }
 ```
-
-## Bellman-Ford
 
 ## Power
 ```cpp
@@ -351,5 +447,97 @@ int main() {
             DFS_R(now);
         }
     }
+}
+```
+
+## ETT
+```cpp
+void ETT(int now) {
+    range[now].first = ++cnt;
+    for(int next : edge[now]) ETT(next);
+	range[now].second = cnt;
+}
+```
+
+## DINIC
+```cpp
+#include <bits/stdc++.h>
+
+using namespace std;
+
+constexpr int LEN = 501;
+constexpr int INF = 0x7FFFFFFF;
+vector<int> edge[LEN]; //간선
+int C[LEN][LEN],F[LEN][LEN]; //전체 용량, 흐르는 유량
+int level[LEN],work[LEN]; //레벨, 이미 탐색한 간선 알려줌.
+int N,M,S,T; //정점개수, 간선개수, 시작점, 끝점.
+
+//라벨링.
+bool Label() {
+    memset(level,-1,sizeof(level));
+    queue<int> task;
+    task.push(S);
+    level[S] = 0;
+    while(!task.empty()) {
+        int now = task.front();
+        task.pop();
+        for(int next : edge[now]) {
+            if(level[next] == -1 && C[now][next]-F[now][next] > 0) {
+                level[next] = level[now]+1;
+                task.push(next);
+            }
+        }
+    }
+    if(level[T] == -1) return false;
+    return true;
+}
+
+int DFS(int now,int flow) {
+    if(now == T) return flow; 
+
+    int sz = edge[now].size();
+    for(int &i=work[now]; i<sz; i++) {
+        int next = edge[now][i];
+        if(level[next] == level[now]+1 && C[now][next]-F[now][next] > 0) {
+            int amount = DFS(next,min(flow,C[now][next]-F[now][next]));
+            if(amount > 0) {
+                F[now][next] += amount;
+                F[next][now] -= amount;
+                return amount;
+            }
+        }
+    }
+    return 0;
+}
+//Dinic. Ref : BOJ_14286.cpp
+
+int main() {
+    cin.tie(NULL);
+    ios_base::sync_with_stdio(false);
+
+    cin >> N >> M;
+    for(int i=0; i<M; i++) {
+        //간선을 정의하는 곳.
+        //만약 start와 sink를 따로두고 싶다면 MAX + 이런식으로 새 정점으로 빼는 것을 추천.
+        int a,b,c;
+        cin >> a >> b >> c;
+        edge[a].push_back(b);
+        edge[b].push_back(a);
+        C[a][b] += c;
+        C[b][a] += c;
+    }
+    cin >> S >> T;
+
+    int ans = 0;
+    while(Label()) {
+        memset(work,0,sizeof(work));
+        int flow = DFS(S,INF);
+        while(flow != 0) {
+            ans += flow;
+            flow = DFS(S,INF);
+        }
+    }
+    cout << ans;
+    exit(0);
 }
 ```
